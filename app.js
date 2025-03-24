@@ -3,7 +3,34 @@ const app = express()
 const path = require('path')
 const boiling_warriors = require('./seeds/index')
 const jokes = require('./seeds/jokes')
+const helmet = require('helmet')
+const xss = require('xss')
 
+// Security middleware
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+            imgSrc: ["'self'", "data:", "https:"],
+            fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+            connectSrc: ["'self'", "https://icanhazdadjoke.com"]
+        }
+    }
+}))
+
+// XSS protection middleware
+app.use((req, res, next) => {
+    if (req.body) {
+        Object.keys(req.body).forEach(key => {
+            if (typeof req.body[key] === 'string') {
+                req.body[key] = xss(req.body[key]);
+            }
+        });
+    }
+    next();
+});
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
