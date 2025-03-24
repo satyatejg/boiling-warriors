@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boiling Warriors - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <main>
+        <div class="container">
+            <h1>Welcome to Boiling Warriors</h1>
+            
+            <form action="/joke" method="POST">
+                <div class="button-container">
+                    <button type="submit" name="jokeType" value="local">Get a Kullu Joke</button>
+                    <button type="submit" name="jokeType" value="api">Get a Dad Joke</button>
+                </div>
+            </form>
+
+            <div class="button-container">
+                <a href="/boiling_warriors" class="button">Meet the Warriors</a>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+</body>
+</html>
