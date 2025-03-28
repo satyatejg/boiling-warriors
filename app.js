@@ -6,18 +6,21 @@ const jokes = require('./seeds/jokes')
 const helmet = require('helmet')
 const xss = require('xss')
 
-// Security middleware
+// Security middleware with updated CSP
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-            imgSrc: ["'self'", "data:", "https:"],
-            fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
-            connectSrc: ["'self'", "https://icanhazdadjoke.com"]
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https:", "http:"],
+            imgSrc: ["'self'", "data:", "https:", "http:"],
+            fontSrc: ["'self'", "https:", "http:", "data:"],
+            connectSrc: ["'self'", "https://icanhazdadjoke.com"],
+            upgradeInsecureRequests: null  // Remove forced HTTPS upgrade
         }
-    }
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
 }))
 
 // XSS protection middleware
@@ -34,13 +37,18 @@ app.use((req, res, next) => {
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(express.static('public'))
 
+// Serve static files with correct MIME types
+app.use(express.static(path.join(__dirname, 'public'), {
+    setHeaders: (res, path) => {
+        if (path.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css');
+        }
+    }
+}))
 
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
-
-
 
 app.get('/', (req, res) =>{
     res.render('index')
@@ -67,12 +75,10 @@ app.post('/joke', async(req, res) => {
     }
 })
 
-
 app.get('/boiling_warriors', (req, res) => {
     res.render('boiling_warriors', { boiling_warriors })
     // console.log(boiling_warriors)
 })
-
 
 app.listen(5000, () =>{
     console.log('Server is running on port 5000')
